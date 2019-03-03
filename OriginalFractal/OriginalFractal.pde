@@ -1,64 +1,60 @@
-boolean oscillate;
-float x, y, size;
-float start = 0;
-float angle = 1, swing = 1;
-int end = 0;
-int direction = 1;
-float c1 = 255, c2 = 0, c3 = 4, rate = 1; //used for oscillating color
+ArrayList<KochLine> lines;
+boolean morph;
 
 void setup() {
-  size(800, 800);
+  size(700, 400);
+  lines = new ArrayList<KochLine>();
+  PVector start = new PVector(0, height-50);
+  PVector end = new PVector(width, height-50);
+  int[] colors = {17, 38, 245};
+  lines.add( new KochLine(start, end, colors) );
 }
 
 
 void draw() {
-  //background(50);
-  angle+=.09;
-  drawFractal(width/2+(float)(90*Math.cos(angle)), height/2+(float)(90*Math.sin(angle)), 200, (float)(90*Math.sin(angle)));
+  background(255);
+  for (KochLine line : lines) {
+    line.show();
+    if (morph) {
+      line.wiggle();
+    }
+  }
+}
+
+
+void keyPressed() {
+  if (key == ' ') {
+    generate();
+  }
 }
 
 
 void mousePressed() {
-  if (key == 'f') {
-    oscillate = true;
-  }
+  morph = true;
 }
+
 
 void mouseReleased() {
-  if (key == 'f') {
-    oscillate = false;
-  }
+  morph = false;
 }
 
 
-void drawFractal(float x, float y, float size, float angle) {
-  pushMatrix();
-  translate(x, y);
-  rotate(radians(angle));
-  ellipse(0, 0, size, size);
-  popMatrix();
-  if (size > 20) {
-    drawFractal(x + size/2, y + size/2, size*.75, angle+10);
+void generate() {
+  ArrayList<KochLine> nextGen = new ArrayList<KochLine>();
+  for (KochLine line : lines) {
+    //calculate the new PVectors
+    PVector a = line.start();
+    PVector b = line.left();
+    PVector c = line.middle();
+    PVector d = line.right();
+    PVector e = line.end();
+    //get color of line
+    int[] colors = {line.colors[0], line.colors[1], line.colors[2]};
+    //make new line segments between the new PVectors
+    nextGen.add( new KochLine(a, b, colors) );
+    nextGen.add( new KochLine(b, c, colors) );
+    nextGen.add( new KochLine(c, d, colors) );
+    nextGen.add( new KochLine(d, e, colors) );
   }
-}
-
-
-void colorUpdate() {
-  if (c3 < 250) {
-    c3 += rate;
-  } else {
-    if (c1 > 10) {
-      c1 -= rate;
-    } else {
-      if (c2 < 250) {
-        c2 += rate;
-      } else { 
-        if (c3 > 250) {
-          c1 = 255;
-          c2 = 0;
-          c3 = 4;
-        }
-      }
-    }
-  }
+  lines = nextGen;
 }
