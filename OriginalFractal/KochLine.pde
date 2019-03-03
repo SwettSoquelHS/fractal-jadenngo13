@@ -64,3 +64,4 @@ class KochLine {
     return v;
   }
 }
+>>>>>>> a491773205c265d21af2a2accf0fadac9f3d05d3
