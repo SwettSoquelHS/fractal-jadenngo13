@@ -1,65 +1,60 @@
-float sourceAngle = 10;
-boolean newCircle, fastRotate;
-int total;
-float[] colors = {39, 26, 234};
+ArrayList<KochLine> lines;
+boolean morph;
 
 void setup() {
-  size(800, 800);
-  background(50);
-  total = 200;
+  size(700, 400);
+  lines = new ArrayList<KochLine>();
+  PVector start = new PVector(0, height-50);
+  PVector end = new PVector(width, height-50);
+  int[] colors = {17, 38, 245};
+  lines.add( new KochLine(start, end, colors) );
 }
 
 
 void draw() {
-  background(50);
-  generateFractal(width/2, height/2, 50, sourceAngle, 0, colors);
-  
-  if (newCircle) {
-    total++;
-  }
-  
-  if (fastRotate) {
-    sourceAngle+=2;
-  } else {
-    sourceAngle+=.09;
-  }
-}
-
-
-void mousePressed() {
-  newCircle = true;
-}
-
-void mouseReleased() {
-  newCircle = false;
-}
-
-void keyPressed() {
-  if (key == ' ') {
-    fastRotate = true;
-  }
-}
-
-void keyReleased() {
-  if (key == ' ') {
-    if (fastRotate) {
-      fastRotate=!fastRotate;
+  background(255);
+  for (KochLine line : lines) {
+    line.show();
+    if (morph) {
+      line.wiggle();
     }
   }
 }
 
 
-void generateFractal(float x, float y, int size, float angle, int num, float[] colors) {
-  pushMatrix();
-  translate(x, y);
-  rotate(radians(angle));
-  fill(colors[0], colors[1], colors[2]);
-  ellipse(num, 0, 10, 10);
-  popMatrix();
-  if (num < total) {
-    num+=1;
-    angle+=10;
-    float[] c = {colors[0], colors[1]+.5, colors[2]};
-    generateFractal(x, y, size, angle, num, c);
+void keyPressed() {
+  if (key == ' ') {
+    generate();
   }
+}
+
+
+void mousePressed() {
+  morph = true;
+}
+
+
+void mouseReleased() {
+  morph = false;
+}
+
+
+void generate() {
+  ArrayList<KochLine> nextGen = new ArrayList<KochLine>();
+  for (KochLine line : lines) {
+    //calculate the new PVectors
+    PVector a = line.start();
+    PVector b = line.left();
+    PVector c = line.middle();
+    PVector d = line.right();
+    PVector e = line.end();
+    //get color of line
+    int[] colors = {line.colors[0], line.colors[1], line.colors[2]};
+    //make new line segments between the new PVectors
+    nextGen.add( new KochLine(a, b, colors) );
+    nextGen.add( new KochLine(b, c, colors) );
+    nextGen.add( new KochLine(c, d, colors) );
+    nextGen.add( new KochLine(d, e, colors) );
+  }
+  lines = nextGen;
 }
