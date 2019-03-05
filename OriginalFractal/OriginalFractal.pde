@@ -1,4 +1,5 @@
 float sourceAngle = 10;
+float rate = 0;
 boolean newCircle, fastRotate;
 int total;
 float[] colors = {39, 26, 234};
@@ -13,19 +14,25 @@ void setup() {
 void draw() {
   background(50);
   generateFractal(width/2, height/2, 50, sourceAngle, 0, colors);
-  
-  if (newCircle) {
+  //generate new circles
+  if (newCircle) { 
     total++;
   }
-  
+  //rotate the circle faster
   if (fastRotate) {
-    sourceAngle+=2;
+    if (rate < 3) {
+      rate+=.05;
+    }
+    sourceAngle+=rate;
   } else {
-    sourceAngle+=.09;
+    if (rate > 0) {
+      rate-=.05;
+    }
+    sourceAngle+=rate;
   }
 }
 
-
+/* IMPORTANT KEY PRESSES FOR FRACTAL ANIMATION*/
 void mousePressed() {
   newCircle = true;
 }
